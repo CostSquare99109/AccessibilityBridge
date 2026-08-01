@@ -46,10 +46,10 @@ object UiTreeSerializer {
             json.put("center", JSONArray().put((bounds.left + bounds.right) / 2).put((bounds.top + bounds.bottom) / 2))
 
             val actions = JSONArray()
-            val actionList = mutableListOf<Int>()
-            node.getActionList(actionList)
+            // getActionList() returns List<AccessibilityAction> in newer API
+            val actionList = node.actionList ?: emptyList()
             for (action in actionList) {
-                actions.put(getActionName(action))
+                actions.put(getActionName(action.id))
             }
             json.put("actions", actions)
 
@@ -87,12 +87,18 @@ object UiTreeSerializer {
             AccessibilityNodeInfo.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY -> "previous_granularity"
             AccessibilityNodeInfo.ACTION_NEXT_HTML_ELEMENT -> "next_html_element"
             AccessibilityNodeInfo.ACTION_PREVIOUS_HTML_ELEMENT -> "previous_html_element"
-            AccessibilityNodeInfo.ACTION_SHOW_ON_SCREEN -> "show_on_screen"
-            AccessibilityNodeInfo.ACTION_CONTEXT_CLICK -> "context_click"
-            AccessibilityNodeInfo.ACTION_SET_PROGRESS -> "set_progress"
-            AccessibilityNodeInfo.ACTION_MOVE_WINDOW -> "move_window"
-            AccessibilityNodeInfo.ACTION_DISMISS -> "dismiss"
-            else -> "action_$action"
+            // These constants may not exist in older API levels, use fallback
+            else -> {
+                // Try to match by known constant values
+                when (action) {
+                    0x00010000 -> "show_on_screen"     // ACTION_SHOW_ON_SCREEN
+                    0x00020000 -> "context_click"       // ACTION_CONTEXT_CLICK
+                    0x00040000 -> "set_progress"        // ACTION_SET_PROGRESS
+                    0x00080000 -> "move_window"         // ACTION_MOVE_WINDOW
+                    0x00100000 -> "dismiss"             // ACTION_DISMISS
+                    else -> "action_$action"
+                }
+            }
         }
     }
 }

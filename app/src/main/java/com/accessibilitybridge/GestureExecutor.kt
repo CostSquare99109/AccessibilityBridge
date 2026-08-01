@@ -4,7 +4,6 @@ import android.accessibilityservice.AccessibilityService
 import android.graphics.Path
 import android.os.Build
 import android.util.Log
-import android.view.accessibility.AccessibilityGestureEvent
 
 object GestureExecutor {
 
@@ -49,7 +48,7 @@ object GestureExecutor {
                     lineTo(endX, endY)
                 }
                 val gesture = android.accessibilityservice.GestureDescription.Builder()
-                    .addStroke(android.accessibilityservice.GestureDescription.StrokeDescription(path, 0, duration))
+                    .addStroke(android.accessibilityservice.GestureDescription.StrokeDescription(path, 0, duration.toLong()))
                     .build()
                 service.dispatchGesture(gesture, object : AccessibilityService.GestureResultCallback() {
                     override fun onCompleted(gestureDescription: android.accessibilityservice.GestureDescription) {
@@ -74,7 +73,7 @@ object GestureExecutor {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 val gesture = android.accessibilityservice.GestureDescription.Builder()
                     .addStroke(android.accessibilityservice.GestureDescription.StrokeDescription(
-                        Path().apply { moveTo(x, y) }, 0, duration
+                        Path().apply { moveTo(x, y) }, 0, duration.toLong()
                     ))
                     .build()
                 service.dispatchGesture(gesture, object : AccessibilityService.GestureResultCallback() {

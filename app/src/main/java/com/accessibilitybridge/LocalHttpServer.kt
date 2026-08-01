@@ -73,11 +73,12 @@ class LocalHttpServer(private val port: Int, private val service: AccessibilityB
             val path = tokens[1]
 
             var contentLength = 0
-            var line: String?
-            while (input.readLine().also { line = it } != null && line.isNotBlank()) {
+            var line = input.readLine()
+            while (line != null && line.isNotBlank()) {
                 if (line.startsWith("Content-Length:")) {
                     contentLength = line.substringAfter(":").trim().toIntOrNull() ?: 0
                 }
+                line = input.readLine()
             }
 
             var body = ""

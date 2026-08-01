@@ -72,7 +72,7 @@ class AccessibilityBridgeService : AccessibilityService() {
             notificationTimeout = 100
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            info.capabilities = info.capabilities or AccessibilityServiceInfo.CAPABILITY_CAN_REQUEST_TOUCH_EXPLORATION
+            // capabilities is read-only in newer API, skip
         }
         setServiceInfo(info)
         refreshUiTree()
@@ -165,4 +165,3 @@ class AccessibilityBridgeService : AccessibilityService() {
         httpServer?.start()
     }
 }
-
