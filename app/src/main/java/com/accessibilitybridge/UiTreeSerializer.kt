@@ -24,11 +24,11 @@ object UiTreeSerializer {
 
         try {
             json.put("id", node.hashCode())
-            json.put("className", node.className?.toString() ?: "")
-            json.put("packageName", node.packageName?.toString() ?: "")
-            json.put("text", node.text?.toString() ?: "")
-            json.put("contentDescription", node.contentDescription?.toString() ?: "")
-            json.put("viewIdResourceName", node.viewIdResourceName?.toString() ?: "")
+            json.put("className", escapeJson(node.className?.toString() ?: ""))
+            json.put("packageName", escapeJson(node.packageName?.toString() ?: ""))
+            json.put("text", escapeJson(node.text?.toString() ?: ""))
+            json.put("contentDescription", escapeJson(node.contentDescription?.toString() ?: ""))
+            json.put("viewIdResourceName", escapeJson(node.viewIdResourceName?.toString() ?: ""))
             json.put("clickable", node.isClickable)
             json.put("enabled", node.isEnabled)
             json.put("focusable", node.isFocusable)
@@ -46,7 +46,6 @@ object UiTreeSerializer {
             json.put("center", JSONArray().put((bounds.left + bounds.right) / 2).put((bounds.top + bounds.bottom) / 2))
 
             val actions = JSONArray()
-            // getActionList() returns List<AccessibilityAction> in newer API
             val actionList = node.actionList ?: emptyList()
             for (action in actionList) {
                 actions.put(getActionName(action.id))
@@ -70,6 +69,11 @@ object UiTreeSerializer {
         return json
     }
 
+    private fun escapeJson(input: String): String {
+        // org.json handles escaping automatically, but ensure no null bytes or control chars
+        return input.replace("\u0000", "").trim { it <= ' ' }
+    }
+
     private fun getActionName(action: Int): String {
         return when (action) {
             AccessibilityNodeInfo.ACTION_CLICK -> "click"
@@ -87,15 +91,13 @@ object UiTreeSerializer {
             AccessibilityNodeInfo.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY -> "previous_granularity"
             AccessibilityNodeInfo.ACTION_NEXT_HTML_ELEMENT -> "next_html_element"
             AccessibilityNodeInfo.ACTION_PREVIOUS_HTML_ELEMENT -> "previous_html_element"
-            // These constants may not exist in older API levels, use fallback
             else -> {
-                // Try to match by known constant values
                 when (action) {
-                    0x00010000 -> "show_on_screen"     // ACTION_SHOW_ON_SCREEN
-                    0x00020000 -> "context_click"       // ACTION_CONTEXT_CLICK
-                    0x00040000 -> "set_progress"        // ACTION_SET_PROGRESS
-                    0x00080000 -> "move_window"         // ACTION_MOVE_WINDOW
-                    0x00100000 -> "dismiss"             // ACTION_DISMISS
+                    0x00010000 -> "show_on_screen"
+                    0x00020000 -> "context_click"
+                    0x00040000 -> "set_progress"
+                    0x00080000 -> "move_window"
+                    0x00100000 -> "dismiss"
                     else -> "action_$action"
                 }
             }
