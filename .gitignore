@@ -1,0 +1,26 @@
+# Gradle
+.gradle/
+build/
+app/build/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local properties
+local.properties
+
+# Keystores
+*.jks
+*.keystore
+
+# APKs (except in build outputs)
+*.apk
+!app/build/outputs/apk/**/*.apk

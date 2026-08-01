@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">AccessibilityBridge</string>
+    <string name="accessibility_service_name">AccessibilityBridge Service</string>
+    <string name="accessibility_service_description">Permite a Termux leer y controlar la UI de otras apps mediante AccessibilityService</string>
+    <string name="service_running">Servicio activo - Puerto 8080</string>
+    <string name="service_stopped">Servicio detenido</string>
+    <string name="enable_accessibility">Activar AccessibilityService</string>
+    <string name="open_settings">Abrir configuración</string>
+</resources>
