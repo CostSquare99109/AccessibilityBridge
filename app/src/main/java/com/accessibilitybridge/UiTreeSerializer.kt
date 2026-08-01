@@ -8,6 +8,8 @@ import org.json.JSONObject
 object UiTreeSerializer {
 
     private const val TAG = "UiTreeSerializer"
+    private const val MAX_DEPTH = 10  // Limit depth to avoid huge trees
+    private const val MAX_CHILDREN = 50  // Limit children per node
 
     fun serialize(root: AccessibilityNodeInfo): String {
         try {
@@ -21,6 +23,19 @@ object UiTreeSerializer {
 
     private fun serializeNode(node: AccessibilityNodeInfo, depth: Int): JSONObject {
         val json = JSONObject()
+
+        if (depth >= MAX_DEPTH) {
+            try {
+                json.put("id", node.hashCode())
+                json.put("className", escapeJson(node.className?.toString() ?: ""))
+                json.put("packageName", escapeJson(node.packageName?.toString() ?: ""))
+                json.put("truncated", true)
+                json.put("reason", "max_depth_reached")
+            } catch (e: Exception) {
+                Log.e(TAG, "Truncated node error", e)
+            }
+            return json
+        }
 
         try {
             json.put("id", node.hashCode())
@@ -53,11 +68,14 @@ object UiTreeSerializer {
             json.put("actions", actions)
 
             val children = JSONArray()
+            var childCount = 0
             for (i in 0 until node.childCount) {
+                if (childCount >= MAX_CHILDREN) break
                 val child = node.getChild(i)
                 if (child != null) {
                     children.put(serializeNode(child, depth + 1))
                     child.recycle()
+                    childCount++
                 }
             }
             json.put("children", children)
@@ -70,7 +88,6 @@ object UiTreeSerializer {
     }
 
     private fun escapeJson(input: String): String {
-        // org.json handles escaping automatically, but ensure no null bytes or control chars
         return input.replace("\u0000", "").trim { it <= ' ' }
     }
 
